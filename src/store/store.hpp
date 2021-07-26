@@ -20,12 +20,79 @@
  *
  *
  */
-
+// We MIGHT need these later in order to set up the Python bindings
+//#define PY_SSIZE_T_CLEAN
+//#include <Python.h>
 #include <string>
 #include <vector>
+#include <iostream>
+#include <curl/curl.h>
 
+#ifndef store_hpp__
+#define store_hpp__
 #define elif else if
 #define string_list std::vector<std::string>
 #define int_list std::vector<int>
 #define float_list std::vector<float>
 #define bool_list std::vector<bool>
+
+char url[] = "https://api.store.vetala.tech/";
+
+// Structs to emulate JSON data
+// List of possible tags
+struct Tags
+{
+    string_list genres, platforms, ratings;
+};
+
+// Data for a specific game
+struct Game
+{
+    std::string name, description, platform, rating, screenshots_url;
+    int downloads, joined;
+    string_list genres;
+};
+
+// Info needed to download something
+struct Download_Info
+{
+    std::string url;
+    bool in_pack_man;
+};
+
+// List of games
+#define Games std::vector<Game>
+
+// Initialize Curl
+// curl_global_init(CURL_GLOBAL_ALL);
+
+
+// Query Data
+
+extern Tags get_tags();
+
+extern Games search(std::string free_text);
+
+extern Games search(Tags tags[]);
+
+extern Games search(Tags tags[], std::string free_text);
+
+extern Download_Info get_download_info(std::string pkg_name);
+
+extern Game get_game(std::string pkg_name);
+
+// Installation functions
+
+extern bool vstore_install_external_URL(std::string url);
+
+extern bool vstore_install_external_local(std::string path);
+
+extern bool vstore_check_installed(std::string pkg_name);
+
+extern bool vstore_install_pkg(std::string pkg_name);
+
+extern Games vstore_list_installed(std::string pkg_name);
+
+
+
+#endif  // store_hpp__
