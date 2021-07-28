@@ -36,7 +36,7 @@
 #define float_list std::vector<float>
 #define bool_list std::vector<bool>
 
-char url[] = "https://api.store.vetala.tech/";
+std::string url = "http://api.store.vetala.tech/";
 
 // Structs to emulate JSON data
 // List of possible tags
@@ -63,9 +63,6 @@ struct Download_Info
 // List of games
 #define Games std::vector<Game>
 
-// Initialize Curl
-// curl_global_init(CURL_GLOBAL_ALL);
-
 
 // Query Data
 
@@ -73,9 +70,9 @@ extern Tags get_tags();
 
 extern Games search(std::string free_text);
 
-extern Games search(Tags tags[]);
+extern Games search(string_list tags);
 
-extern Games search(Tags tags[], std::string free_text);
+extern Games search(string_list tags, std::string free_text);
 
 extern Download_Info get_download_info(std::string pkg_name);
 
