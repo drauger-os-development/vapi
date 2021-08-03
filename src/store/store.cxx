@@ -175,12 +175,53 @@ Games search(string_list tags)
     std::cout << recv_data << std::endl;
     return games;
 }
-//
-// Games search(string_list tags, std::string free_text)
-// {
-//
-// }
-//
+
+Games search(string_list tags, std::string free_text)
+{
+    //piggy back off the free text search function to get the data we need
+    //essentially this lets the server do the potentially laborious work of searching multiple things
+    //for a given substring
+    Games games = search(free_text);
+    Games output;
+    bool skip = false;
+    for (unsigned int i = 0; i < games.size(); i++)
+    {
+        for (unsigned int j = 0; j < games[i].genres.size(); j++)
+        {
+            for (unsigned int k = 0; k < tags.size(); k++)
+            {
+                if (tags[k] == games[i].genres[j])
+                {
+                    output.push_back(games[i]);
+                    skip = true;
+                    break;
+                }
+            }
+            if (skip)
+            {
+                break;
+            }
+        }
+        if (skip)
+        {
+            skip = false;
+        }
+        else
+        {
+            // Check platform and rating
+            for (unsigned int k = 0; k < tags.size(); k++)
+            {
+                if ((tags[k] == games[i].platform) || (tags[k] == games[i].rating))
+                {
+                    output.push_back(games[i]);
+                    break;
+                }
+            }
+        }
+    }
+    return output;
+}
+
 // Download_Info get_download_info(std::string pkg_name)
 // {
 //
