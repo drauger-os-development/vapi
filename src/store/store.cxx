@@ -51,14 +51,100 @@ std::string download(std::string download_url)
 }
 
 
+// JSON parsing helpers
+string_list parse_list(std::string input)
+{
+    string_list output;
+    std::string append = "";
+    for (unsigned int i = 0; i < input.size(); i++)
+    {
+        if (input[i] == '"')
+        {
+            if (append.size() != 0)
+            {
+                output.push_back(append);
+                append = "";
+            }
+        }
+        elif ((input[i] != '[') && (input[i] != ']') && (input[i] != ','))
+        {
+            append = append + input[i];
+        }
+    }
+    return output;
+}
+
+
 // Query Data
 Tags get_tags()
 {
     std::string recv_data = download((url + "tags").c_str());
     Tags tags;
     // interpret the JSON data.
-    // Easier said than done lol
-    std::cout << recv_data << std::endl;
+    unsigned int overshoot = 0;
+    for (unsigned int i = 0; i < recv_data.size(); i++)
+    {
+        /*
+        Check for tags
+
+        We can't assume positions here. If we did and something in the code changed, we could very quickly end up with breakage.
+        Instead, we need to iterate through the string and look for the tags
+        */
+        // Skip processing any chars we have already handled
+        if (overshoot != 0)
+        {
+            overshoot--;
+            continue;
+        }
+        if (recv_data.substr(i, i + 4) == "genres")
+        {
+            overshoot = 10;
+            for (unsigned int j = i + 8; j < recv_data.size(); j++)
+            {
+                if (recv_data[j] != ']')
+                {
+                    overshoot++;
+                }
+                else
+                {
+                    break;
+                }
+            }
+            tags.genres = parse_list(recv_data.substr(i + 8, i + overshoot));
+        }
+        elif (recv_data.substr(i, i + 9).substr(0, 9) == "platforms")
+        {
+            overshoot = 1;
+            for (unsigned int j = i + 11; j < recv_data.size(); j++)
+            {
+                if (recv_data[j] != ']')
+                {
+                    overshoot++;
+                }
+                else
+                {
+                    break;
+                }
+            }
+            tags.platforms = parse_list(recv_data.substr(i + 11, i + overshoot).substr(0, overshoot));
+        }
+        elif (recv_data.substr(i, i + 7).substr(0, 7) == "ratings")
+        {
+
+            for (unsigned int j = i + 9; j < recv_data.size(); j++)
+            {
+                if (recv_data[j] != ']')
+                {
+                    overshoot++;
+                }
+                else
+                {
+                    break;
+                }
+            }
+            tags.ratings = parse_list(recv_data.substr(i + 9, i + overshoot).substr(0, overshoot));
+        }
+    }
     return tags;
 }
 
