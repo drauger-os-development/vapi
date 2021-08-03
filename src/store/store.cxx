@@ -75,6 +75,143 @@ string_list parse_list(std::string input)
 }
 
 
+Game parse_game(std::string input)
+{
+    Game output;
+    //std::string append = "";
+    unsigned int overshoot = 0;
+    for (unsigned int i = 0; i < input.size(); i++)
+    {
+        if (overshoot != 0)
+        {
+            overshoot--;
+            continue;
+        }
+        //std::cout << input.substr(i, i + 9).substr(0, 9) << std::endl;
+        if (input.substr(i, i + 2) == "Name")
+        {
+            for (unsigned int j = i + 7; j < input.size(); j++)
+            {
+                if (input[j] != '"')
+                {
+                    overshoot++;
+                }
+                else
+                {
+                    break;
+                }
+            }
+            output.name = input.substr(i + 7, i + overshoot).substr(0, overshoot);
+        }
+        elif (input.substr(i, i + 11).substr(0, 11) == "description")
+        {
+            for (unsigned int j = i + 14; j < input.size(); j++)
+            {
+                if (input[j] != '"')
+                {
+                    overshoot++;
+                }
+                else
+                {
+                    break;
+                }
+            }
+            output.description = input.substr(i + 14, i + overshoot).substr(0, overshoot);
+        }
+        elif (input.substr(i, i + 8).substr(0, 8) == "platform")
+        {
+            for (unsigned int j = i + 11; j < input.size(); j++)
+            {
+                if (input[j] != '"')
+                {
+                    overshoot++;
+                }
+                else
+                {
+                    break;
+                }
+            }
+            output.platform = input.substr(i + 11, i + overshoot).substr(0, overshoot);
+        }
+        elif (input.substr(i, i + 6).substr(0, 6) == "rating")
+        {
+            for (unsigned int j = i + 9; j < input.size(); j++)
+            {
+                if (input[j] != '"')
+                {
+                    overshoot++;
+                }
+                else
+                {
+                    break;
+                }
+            }
+            output.rating = input.substr(i + 9, i + overshoot).substr(0, overshoot);
+        }
+        elif (input.substr(i, i + 15).substr(0, 15) == "screenshots_url")
+        {
+            for (unsigned int j = i + 18; j < input.size(); j++)
+            {
+                if (input[j] != '"')
+                {
+                    overshoot++;
+                }
+                else
+                {
+                    break;
+                }
+            }
+            output.screenshots_url = input.substr(i + 18, i + overshoot).substr(0, overshoot);
+        }
+        elif (input.substr(i, i + 6).substr(0, 6) == "genres")
+        {
+            for (unsigned int j = i + 9; j < input.size(); j++)
+            {
+                if (input[j] != ']')
+                {
+                    overshoot++;
+                }
+                else
+                {
+                    break;
+                }
+            }
+            output.genres = parse_list(input.substr(i + 9, i + overshoot).substr(0, overshoot));
+        }
+        elif (input.substr(i, i + 6).substr(0, 6) == "joined")
+        {
+            for (unsigned int j = i + 8; j < input.size(); j++)
+            {
+                if (input[j] != ',')
+                {
+                    overshoot++;
+                }
+                else
+                {
+                    break;
+                }
+            }
+            output.joined = std::stoi(input.substr(i + 8, i + overshoot).substr(0, overshoot));
+        }
+        elif (input.substr(i, i + 9).substr(0, 9) == "downloads")
+        {
+            for (unsigned int j = i + 11; j < input.size(); j++)
+            {
+                if (input[j] != ',')
+                {
+                    overshoot++;
+                }
+                else
+                {
+                    break;
+                }
+            }
+            output.downloads = std::stoi(input.substr(i + 11, i + overshoot).substr(0, overshoot));
+        }
+    }
+    return output;
+}
+
 // Query Data
 Tags get_tags()
 {
@@ -130,7 +267,7 @@ Tags get_tags()
         }
         elif (recv_data.substr(i, i + 7).substr(0, 7) == "ratings")
         {
-
+            overshoot = 0;
             for (unsigned int j = i + 9; j < recv_data.size(); j++)
             {
                 if (recv_data[j] != ']')
@@ -231,8 +368,7 @@ Game get_game(std::string pkg_name)
 {
     std::string download_url = url + "/games/" + pkg_name;
     std::string recv_data = download(download_url.c_str());
-    Game game;
-    std::cout << recv_data << std::endl;
+    Game game = parse_game(recv_data);
     return game;
 }
 //
