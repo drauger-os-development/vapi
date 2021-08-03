@@ -212,6 +212,39 @@ Game parse_game(std::string input)
     return output;
 }
 
+Games parse_games(std::string input)
+{
+    bool toggle = false;
+    Games games;
+    std::string append;
+    string_list temp;
+    for (unsigned int i = 0; i < input.size(); i++)
+    {
+        if (toggle)
+        {
+            append = append + input[i];
+        }
+        if (input[i] == '}')
+        {
+            if (append.size() != 0)
+            {
+                temp.push_back(append);
+                append = "";
+                toggle = false;
+            }
+        }
+        elif (input[i] == ':')
+        {
+            toggle = true;
+        }
+    }
+    for (unsigned int i = 0; i < temp.size(); i++)
+    {
+        games.push_back(parse_game(temp[i]));
+    }
+    return games;
+}
+
 // Query Data
 Tags get_tags()
 {
@@ -288,9 +321,7 @@ Tags get_tags()
 Games search(std::string free_text)
 {
     std::string recv_data = download((url + "search/free-text=" + free_text).c_str());
-    Games games;
-    std::cout << recv_data << std::endl;
-    return games;
+    return parse_games(recv_data);
 }
 
 Games search(string_list tags)
@@ -308,9 +339,7 @@ Games search(string_list tags)
         }
     }
     std::string recv_data = download(download_url.c_str());
-    Games games;
-    std::cout << recv_data << std::endl;
-    return games;
+    return parse_games(recv_data);
 }
 
 Games search(string_list tags, std::string free_text)
@@ -368,8 +397,7 @@ Game get_game(std::string pkg_name)
 {
     std::string download_url = url + "/games/" + pkg_name;
     std::string recv_data = download(download_url.c_str());
-    Game game = parse_game(recv_data);
-    return game;
+    return parse_game(recv_data);
 }
 //
 // // Installation functions
