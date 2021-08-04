@@ -266,7 +266,7 @@ Tags get_tags()
             overshoot--;
             continue;
         }
-        if (recv_data.substr(i, i + 4) == "genres")
+        if (recv_data.substr(i, i + 4).substr(0, 4) == "genres")
         {
             overshoot = 10;
             for (unsigned int j = i + 8; j < recv_data.size(); j++)
@@ -388,11 +388,42 @@ Games search(string_list tags, std::string free_text)
     return output;
 }
 
-// Download_Info get_download_info(std::string pkg_name)
-// {
-//
-// }
-//
+Download_Info get_download_info(std::string pkg_name)
+{
+    std::string download_url = url + "games/" + pkg_name + "/download";
+    std::string recv_data = download(download_url.c_str());
+    Download_Info output;
+    unsigned int overshoot = 0;
+    for (unsigned int i = 0; i < recv_data.size(); i++)
+    {
+        if (overshoot != 0)
+        {
+            overshoot--;
+            continue;
+        }
+        if (recv_data.substr(i, i + 3).substr(0, 3) == "URL")
+        {
+            for (unsigned int j = i + 6; j < recv_data.size(); j++)
+            {
+                if (recv_data[j] != '"')
+                {
+                    overshoot++;
+                }
+                else
+                {
+                    break;
+                }
+            }
+            output.url = recv_data.substr(i + 6, i + overshoot).substr(0, overshoot);
+        }
+        elif (recv_data.substr(i, i + 11).substr(0, 11) == "in_pack_man")
+        {
+            output.in_pack_man = (recv_data.substr(i + 13)[0] == '1');
+        }
+    }
+    return output;
+}
+
 Game get_game(std::string pkg_name)
 {
     std::string download_url = url + "/games/" + pkg_name;
