@@ -36,7 +36,7 @@
 #define float_list std::vector<float>
 #define bool_list std::vector<bool>
 
-std::string url = "http://api.store.vetala.tech/";
+const std::string url = "http://api.store.vetala.tech/";
 
 // Structs to emulate JSON data
 // List of possible tags
